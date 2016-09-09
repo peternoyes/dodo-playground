@@ -1,0 +1,59 @@
+/*
+body {
+	margin: 20px;
+}*/
+
+/*
+#editor {
+	position: relative;
+	top: 200px;
+	right: 0;
+	bottom: 100px;
+	left: 0;
+}
+*/
+
+body { 
+	padding-top: 50px;
+}
+
+html, body {
+    height: 100%;
+}
+
+.fill-height {
+    height: 100%;
+    overflow-y: hidden; /* don't show content that exceeds my height */
+}
+
+.fill-height-scroll {
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.editor-height {
+    height: calc(100% - 100px);
+    overflow-y: hidden;
+}
+
+#editor {
+    height: 100%;
+    overflow-y: auto;
+}
+
+#api {
+    margin: 15px;
+}
+
+#results {
+	margin: 15px;
+	min-height: 100px;
+}
+
+.left-border {
+    border-left: 1px solid #eee;
+}
+
+.top-border {
+    border-top: 1px solid #eee;
+}

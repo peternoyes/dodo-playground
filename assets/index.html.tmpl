@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	
+		<link href="/assets/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+		    <div class="navbar-header">
+		      <a class="navbar-brand" href="#">Dodo Playground</a>
+		      <button id="runButton" type="button" class="btn btn-default navbar-btn">Run</button>
+		    </div>
+		</nav>
+		<div class="container-fluid fill-height">
+			<div class="row fill-height">
+				<div class="col-sm-8 fill-height-scroll">
+					<div class="row editor-height">
+						<div id="editor">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include "api.h"
+
+static unsigned char const _ball[8] = { 0x3c, 0x42, 0x81, 0x81, 0x81, 0x81, 0x42, 0x3c }; 
+static unsigned char const _ball_mask[8] = { 0xc3, 0x81, 0x00, 0x00, 0x00, 0x00, 0x81, 0xc3 };
+static unsigned char const _hatch[8] = { 0x55, 0x55, 0xaa, 0xaa, 0x55, 0x55, 0xaa, 0xaa };
+static unsigned char const _cursor[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+static unsigned char const _cursor2[32] = { 0xff, 0xfe, 0xfc, 0xf8, 0xf0, 0xe0, 0xc0, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x3f, 0x1f, 0x1f, 0x3f, 0xff, 0xff, 0x77, 0x23, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+int main() {
+	unsigned char* ball = (unsigned char*)_ball;
+	unsigned char* ball_mask = (unsigned char*)_ball_mask;
+	unsigned char* hatch = (unsigned char*)_hatch;
+	unsigned char* cursor = (unsigned char*)_cursor;
+	unsigned char* cursor2 = (unsigned char*)_cursor2;
+
+	unsigned char p, x, y, xdir, ydir = 0;
+	//unsigned char xdir = 0;				// For some reason this being declared on previous line causes bug on real hardware. Need to investigate.
+
+	// Create a buffer to store the portion of the background behind the ball.
+	// The buffer much be large enough to store the sprite and an additonal row of data
+	// If the sprite were 24x16, the buffer would need to be an additional 24 bytes larger
+	unsigned char* buffer = (unsigned char*)malloc(16);
+
+	api_init();					// Initialize the API
+
+	CLEAR();					// Clear the screen
+
+	for (p = 0; p &lt; 128; p += 8) {
+		for (y = 0; y &lt; 64; y += 8) {
+			DRAW_SPRITE(hatch, p, y, 8, 8, 0, DRAW_NOP);
+		}
+	}
+
+	SET_CURSOR(3, 3);				// Row, Col
+	DRAW_STRING("Hello World!");
+
+	//DRAW_SPRITE(cursor, 8, 8, 8, 8, 0, DRAW_XOR);
+
+	x = 0;
+	y = 20;
+
+	for (;;) {
+		COPY_BACKGROUND(buffer, x, y, 16, 16, 0);	// Copy background into buffer
+
+		//DRAW_SPRITE(ball_mask, x, y, 8, 8, 1, DRAW_AND);
+		//DRAW_SPRITE(ball, x, y, 8, 8, 1, DRAW_OR);
+
+		DRAW_SPRITE(cursor2, x, y, 16, 16, 1, DRAW_XOR);
+		
+
+		DISPLAY();				// Push contents of video memory to screen (expensive call)
+
+		COPY_BACKGROUND(buffer, x, y, 16, 16, 1);	// Copy buffer back into video memory, thus erasing the sprite
+
+		
+		if (xdir == 0) {
+			++x;
+			if (x > 112) {
+				x = 112;
+				xdir = 1;
+			}
+		} else if (xdir == 1) {
+			--x;
+			if (x > 127) {
+				x = 0;
+				xdir = 0;
+			}
+		}
+
+		
+		if (ydir == 0) {
+			++y;
+			if (y > 48) {
+				y = 48;
+				ydir = 1;
+			}
+		} else if (ydir == 1) {
+			--y;
+			if (y > 127) {
+				y = 0;
+				ydir = 0;
+			}
+		}
+		
+		WAIT();					// Wait for next interrupt, sync game loop
+	}
+
+	return 0;
+}			
+						</div>
+					</div>
+					<div class="row bg-info top-border">
+						<div id="results">
+							Loading Application...
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-4 fill-height-scroll left-border">
+					<div class="row">
+						<div id="api">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal -->
+		<div class="modal fade" id="simModal" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Simulator</h4>
+					</div>
+					<div class="modal-body">
+						<center>
+							<canvas id="gameCanvas"></canvas>
+							<p>
+								Cycles Per Frame: <span id="cycles"></span>
+							</p>
+							<p>
+								<small>Use 'A', 'B' and Arrow Keys to Play</small>
+							</p>
+						</center>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="/assets/ace.js" type="text/javascript" charset="utf-8"></script>
+		<script>
+			var editor = ace.edit('editor');
+			//editor.setTheme("ace/theme/monokai");
+			editor.getSession().setMode("ace/mode/c_cpp");
+		</script>
+		<script src="/assets/script/script.js" type="text/javascript"></script>
+	</body>
+</html>
