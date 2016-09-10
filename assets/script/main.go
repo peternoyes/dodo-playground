@@ -110,11 +110,13 @@ func runSimulator(s *dodosim.SimulatorSync) {
 
 	js.Global.Call("addEventListener", "keydown", func(event *js.Object) {
 		k := event.Get("keyCode").Int()
+		event.Call("preventDefault")
 		keyState[k] = true
 	})
 
 	js.Global.Call("addEventListener", "keyup", func(event *js.Object) {
 		k := event.Get("keyCode").Int()
+		event.Call("preventDefault")
 		keyState[k] = false
 	})
 
@@ -263,6 +265,5 @@ func setBgClass(j *js.Object, class string) {
 func loadAPI() {
 	api, _ := getAsset("api.md")
 	output := blackfriday.MarkdownCommon(api)
-
-	js.Global.Get("api").Set("innerHTML", string(output))
+	jQuery("#api").SetHtml(string(output))
 }

@@ -14,7 +14,11 @@ body {
 */
 
 body { 
-	padding-top: 50px;
+	padding-top: 51px;
+}
+
+.container-fluid {
+    margin-bottom: -20px;
 }
 
 html, body {
@@ -28,11 +32,11 @@ html, body {
 
 .fill-height-scroll {
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .editor-height {
-    height: calc(100% - 100px);
+    height: calc(100% - 101px);
     overflow-y: hidden;
 }
 
@@ -42,11 +46,11 @@ html, body {
 }
 
 #api {
-    margin: 15px;
+    padding: 15px;
 }
 
 #results {
-	margin: 15px;
+	padding: 15px;
 	min-height: 100px;
 }
 

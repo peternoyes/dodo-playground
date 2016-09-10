@@ -16,23 +16,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/shurcooL/httpgzip"
+	"github.com/peternoyes/httpgzip"
 )
 
-var httpFlag = flag.String("http", ":8080", "Listen for HTTP connections on this address.")
+var httpFlag = flag.String("http", ":3000", "Listen for HTTP connections on this address.")
 
 func main() {
 	flag.Parse()
 
-	//http.Handle("/assets/", httpgzip.FileServer(assets, httpgzip.FileServerOptions{ServeError: httpgzip.Detailed}))
-	//http.Handle("/favicon.ico", http.NotFoundHandler())
-
 	printServingAt(*httpFlag)
-
-	//err := http.ListenAndServe(*httpFlag, nil)
-	//if err != nil {
-	//	log.Fatalln("ListenAndServe:", err)
-	//}
 
 	router := NewRouter()
 	router.PathPrefix("/assets/").Handler(httpgzip.FileServer(assets, httpgzip.FileServerOptions{ServeError: httpgzip.Detailed}))

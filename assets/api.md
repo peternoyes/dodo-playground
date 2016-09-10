@@ -12,7 +12,10 @@ Dodo provides a 128x64 Monochrome OLED screen that is mapped to system memory. T
 
 Dodo's system clock runs at 1Mhz. Dodo contains a 6522 VIA Peripheral that fires an interrupt every 50,000 clock cycles, or every 50ms, to pump the game loop. A game that has its logic fit within the 50,000 cycle budget will run at 20 frames per scecond. Game music is also managed in the background by the interrupt.
 
-#### Sample Game Loop
+### Skeleton Code
+
+Below is the skeleton game loop. 
+
 
 ``` cpp
 #include <stdio.h>
