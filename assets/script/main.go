@@ -108,17 +108,20 @@ func runSimulator(s *dodosim.SimulatorSync) {
 
 	keyState := make(map[int]bool)
 
-	js.Global.Call("addEventListener", "keydown", func(event *js.Object) {
+	downHandler := func(event *js.Object) {
 		k := event.Get("keyCode").Int()
 		event.Call("preventDefault")
 		keyState[k] = true
-	})
+	}
 
-	js.Global.Call("addEventListener", "keyup", func(event *js.Object) {
+	upHandler := func(event *js.Object) {
 		k := event.Get("keyCode").Int()
 		event.Call("preventDefault")
 		keyState[k] = false
-	})
+	}
+
+	js.Global.Call("addEventListener", "keydown", downHandler)
+	js.Global.Call("addEventListener", "keyup", upHandler)
 
 	// Measure 2 seconds worth, to figure out delay
 	start := time.Now()
@@ -151,6 +154,11 @@ func runSimulator(s *dodosim.SimulatorSync) {
 
 		s.PumpClock(k)
 
+		if stop {
+			js.Global.Call("removeEventListener", "keydown", downHandler)
+			js.Global.Call("removeEventListener", "keyup", upHandler)
+		}
+
 		return !stop
 	})
 }
@@ -177,7 +185,9 @@ func (r *WebRenderer) Render(data [1024]byte) {
 	var b byte
 	for y = 0; y < 64; y++ {
 		for x = 0; x < 128; x++ {
-			b = (data[x+((y/8)*128)] >> (byte(y) % 8)) & 1
+			i := x + ((y / 8) * 128)
+			b = (data[i] >> (byte(y) % 8)) & 1
+
 			if b == 1 {
 				ctx.Call("putImageData", on, x*2, y*2)
 			} else {

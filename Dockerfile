@@ -7,14 +7,14 @@ WORKDIR /go/src
 RUN go get -u github.com/gorilla/mux
 RUN go get -u github.com/gopherjs/jquery
 RUN go get -u github.com/peternoyes/dodo-sim
-RUN go get -u github.com/peternoyes/httpgzip
 RUN go get -u github.com/russross/blackfriday
 
 RUN go get -u -d github.com/gopherjs/gopherpen/...
 RUN go get -u -d -tags=dev github.com/gopherjs/gopherpen/...
 RUN go get -u -d -tags=generate github.com/gopherjs/gopherpen/...
 
-RUN go build -tags=dev -o dodo-playground
+RUN go generate
+RUN go build -o dodo-playground
 
 CMD ["./dodo-playground"]
 

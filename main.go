@@ -16,7 +16,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/peternoyes/httpgzip"
+	"github.com/shurcooL/httpgzip"
 )
 
 var httpFlag = flag.String("http", ":3000", "Listen for HTTP connections on this address.")
