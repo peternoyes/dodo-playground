@@ -2,19 +2,23 @@
 
 ## Introduction
 
-Dodo is an 8-bit 65C02 system. Stored in ROM is an ABI (Application Binary Interface) that exposes a Game API. Games are stored in an external 8KB ROM cartridge. 
+Dodo is an 8-bit 65C02 system. Stored in ROM is an ABI (Application Binary Interface) that exposes a Game API. Games are stored in an external 8KB ROM cartridge. Graphics are monochrome and a single sound channel is supported. Read more about the system on the main [webpage](www.dodolabs.io).
 
-### Screen
+## Development
 
-Dodo provides a 128x64 Monochrome OLED screen that is mapped to system memory. The screen layout is organized by page. There are 8 pages each containing 128 bytes that represent 128x8 pixels. Each byte contains a vertical slice of bitmap data where bit 0 is the top of the slice.
+The development stack for Dodo is built around cc65, the 6502 C compiler. The underlying ABI is all written in 6502 assembly.
 
-### Timing
+## Screen
 
-Dodo's system clock runs at 1Mhz. Dodo contains a 6522 VIA Peripheral that fires an interrupt every 50,000 clock cycles, or every 50ms, to pump the game loop. A game that has its logic fit within the 50,000 cycle budget will run at 20 frames per scecond. Game music is also managed in the background by the interrupt.
+Dodo provides a 128x64 Monochrome OLED screen that is mapped to system memory. The screen layout is organized by page. There are 8 pages each containing 128 bytes that represent a block of 128x8 pixels. Each byte contains a vertical slice of bitmap data where bit 0 is the top of the slice.
 
-### Skeleton Code
+## Timing
 
-Below is the skeleton game loop. 
+Dodo's system clock runs at 1Mhz. The hardware includes a 6522 VIA Peripheral that fires an interrupt every 50,000 clock cycles, or every 50ms, to pump the game loop. A game that has its logic fit within the 50,000 cycle budget will run at 20 frames per scecond. Game music is also managed in the background by the interrupt.
+
+## Skeleton Code
+
+Below is a simple outline of a game structure.
 
 
 ``` cpp
@@ -44,6 +48,8 @@ int main() {
 ```
 
 ## Sprites
+
+Sprites are layed out in the same manner as the screen. Sprites must have their height be a multiple of 8 pixels, but the width is arbitrary. Sprites can be drawn flipped along the vertical axis as an option. Sprite drawing also supports a number of boolean drawing operations.
 
 ## Sound
 
