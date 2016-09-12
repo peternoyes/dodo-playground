@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/shurcooL/httpfs/html/vfstemplate"
 	"html/template"
 	"io"
@@ -53,13 +55,7 @@ func Main(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var data = struct {
-		Animals string
-	}{
-		Animals: "gophers",
-	}
-
-	err = t.ExecuteTemplate(w, "index.html.tmpl", data)
+	err = t.ExecuteTemplate(w, "index.html.tmpl", nil)
 	if err != nil {
 		log.Println("t.Execute:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -79,7 +75,41 @@ func Build(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	output, err := Compile(body)
+	source := string(body)
+	crc := GenerateCRC(source)
+
+	err = nil
+	var output []byte
+
+	b, _ := GetBinary(crc)
+	if b != nil {
+		if b.Results == "Success" {
+			output = b.Fram
+			err = nil
+		} else {
+			output = nil
+			err = errors.New(b.Results)
+		}
+	} else {
+		output, err = Compile(body)
+
+		results := ""
+		if err != nil {
+			results = err.Error()
+		} else {
+			results = "Success"
+		}
+
+		b = &Binary{}
+		b.New(crc, source, output, results, "1.0")
+
+		errStore := StoreBinary(b)
+
+		if errStore != nil {
+			BuildErrorResponse(w, http.StatusInternalServerError, errStore)
+			return
+		}
+	}
 
 	if err != nil {
 		BuildErrorResponse(w, http.StatusBadRequest, err)
@@ -91,11 +121,33 @@ func Build(w http.ResponseWriter, r *http.Request) {
 
 	res := struct {
 		Binary []byte `json:"binary"`
+		Id     string `json:"id"`
 	}{
 		output,
+		crc,
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		panic(err)
 	}
+}
+
+func Code(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	crc := vars["id"]
+
+	b, err := GetBinary(crc)
+	if err != nil {
+		BuildErrorResponse(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	code := ""
+	if b != nil {
+		code = b.Source
+	}
+
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	io.WriteString(w, code)
 }

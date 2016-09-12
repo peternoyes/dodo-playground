@@ -38,7 +38,7 @@ func main() {
 
 			setStatus("Compiling...", "bg-info")
 
-			data, err := compileCode()
+			data, id, err := compileCode()
 			if err != nil {
 				setStatus(err.Error(), "bg-danger")
 				return
@@ -49,6 +49,12 @@ func main() {
 			fram = data
 
 			s.SwitchFram(fram)
+
+			gamelink := js.Global.Get("document").Get("location").Get("origin").String()
+			gamelink += "/?code="
+			gamelink += id
+
+			jQuery("#gamelink").SetText(gamelink)
 
 			jQuery("#simModal").Call("modal")
 
@@ -100,7 +106,37 @@ func main() {
 
 	s.SimulateSyncInit(firmware, fram)
 
+	id := getUrlParameter("code")
+	if id != "" {
+		code, err := downloadCode(id)
+		if err != nil {
+			setStatus("Error Fetching Source: "+err.Error(), "bg-danger")
+			return
+		} else {
+			js.Global.Get("editor").Call("setValue", code, -1)
+		}
+	} else {
+		// Download Sample Application
+		raw, _ := getAsset("sample.c")
+		js.Global.Get("editor").Call("setValue", string(raw), -1)
+
+	}
+
 	setStatus("Ready. Click 'Run' to try your game in the simulator.", "bg-success")
+}
+
+func getUrlParameter(param string) string {
+	search := js.Global.Get("window").Get("location").Get("search").String()[1:]
+	pageUrl := js.Global.Call("decodeURIComponent", search).String()
+
+	vars := strings.Split(pageUrl, "&")
+	for _, v := range vars {
+		token := strings.Split(v, "=")
+		if token[0] == param {
+			return token[1]
+		}
+	}
+	return ""
 }
 
 func runSimulator(s *dodosim.SimulatorSync) {
@@ -131,7 +167,16 @@ func runSimulator(s *dodosim.SimulatorSync) {
 	elapsed := time.Since(start)
 	fmt.Println(elapsed)
 
-	Every(time.Millisecond*1, func() bool {
+	// Calculate the delay necessary to achieve 20FPS
+	delay := 1.0
+	seconds := elapsed.Seconds()
+	if seconds < 1.5 {
+		delay = ((2.0 - seconds) / 40.0) * 1000.0
+	}
+
+	fmt.Println("Delay of :", delay)
+
+	Every(time.Millisecond*time.Duration(delay), func() bool {
 		k := ""
 		if keyState[37] {
 			k += "L"
@@ -197,7 +242,7 @@ func (r *WebRenderer) Render(data [1024]byte) {
 	}
 }
 
-func compileCode() ([]byte, error) {
+func compileCode() ([]byte, string, error) {
 	val := js.Global.Get("editor").Call("getValue")
 
 	reader := strings.NewReader(val.String())
@@ -210,11 +255,12 @@ func compileCode() ([]byte, error) {
 	if response.StatusCode == http.StatusOK {
 		res := struct {
 			Binary []byte `json:"binary"`
+			Id     string `json:"id"`
 		}{}
 
 		err = json.Unmarshal(data, &res)
 
-		return res.Binary, err
+		return res.Binary, res.Id, err
 	} else {
 		res := struct {
 			Message string `json:"message"`
@@ -222,7 +268,22 @@ func compileCode() ([]byte, error) {
 
 		err = json.Unmarshal(data, &res)
 
-		return nil, errors.New(res.Message)
+		return nil, "", errors.New(res.Message)
+	}
+}
+
+func downloadCode(id string) (string, error) {
+	response, err := http.Get("/code/" + id)
+	if err != nil {
+		return "", err
+	}
+
+	defer response.Body.Close()
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", err
+	} else {
+		return string(data), nil
 	}
 }
 

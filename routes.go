@@ -39,4 +39,10 @@ var routes = Routes{
 		"/build",
 		Build,
 	},
+	Route{
+		"Code",
+		"GET",
+		"/code/{id}",
+		Code,
+	},
 }
