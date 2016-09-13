@@ -20,8 +20,6 @@ import (
 var jQuery = jquery.NewJQuery
 
 var ctx *js.Object
-var on *js.Object
-var off *js.Object
 var fram []byte
 var firmware []byte
 var stop bool
@@ -77,28 +75,12 @@ func main() {
 	c.Set("width", 256)
 	c.Set("height", 128)
 
-	on = ctx.Call("createImageData", 2, 2)
-	data := on.Get("data")
-	for i := 0; i < 4; i++ {
-		data.SetIndex(i*4+0, 255)
-		data.SetIndex(i*4+1, 255)
-		data.SetIndex(i*4+2, 255)
-		data.SetIndex(i*4+3, 255)
-	}
-
-	off = ctx.Call("createImageData", 2, 2)
-	data = off.Get("data")
-	for i := 0; i < 4; i++ {
-		data.SetIndex(i*4+0, 0)
-		data.SetIndex(i*4+1, 0)
-		data.SetIndex(i*4+2, 0)
-		data.SetIndex(i*4+3, 255)
-	}
-
 	fram, _ = getAsset("fram.bin")
 	firmware, _ = getAsset("firmware")
 
-	s.Renderer = new(WebRenderer)
+	wr := new(WebRenderer)
+	wr.New(ctx)
+	s.Renderer = wr
 
 	s.CyclesPerFrame = func(cycles uint64) {
 		jQuery("#cycles").SetText(strconv.Itoa(int(cycles)))
@@ -219,27 +201,6 @@ func Every(duration time.Duration, fn func() bool) {
 		}
 		Every(duration, fn)
 	})
-}
-
-type WebRenderer struct {
-}
-
-func (r *WebRenderer) Render(data [1024]byte) {
-	//fmt.Println("Render Called")
-	var x, y int
-	var b byte
-	for y = 0; y < 64; y++ {
-		for x = 0; x < 128; x++ {
-			i := x + ((y / 8) * 128)
-			b = (data[i] >> (byte(y) % 8)) & 1
-
-			if b == 1 {
-				ctx.Call("putImageData", on, x*2, y*2)
-			} else {
-				ctx.Call("putImageData", off, x*2, y*2)
-			}
-		}
-	}
 }
 
 func compileCode() ([]byte, string, error) {
