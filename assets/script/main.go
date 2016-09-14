@@ -30,6 +30,9 @@ func main() {
 	s := new(dodosim.SimulatorSync)
 	stop = false
 
+	ws := new(WebSpeaker)
+	ws.New()
+
 	jQuery("#runButton").On(jquery.CLICK, func() {
 		go func() {
 			fmt.Println("Compile Initiated...")
@@ -64,6 +67,7 @@ func main() {
 
 	jQuery("#simModal").On("hidden.bs.modal", func() {
 		go func() {
+			ws.Stop()
 			fmt.Println("About to stop simulator")
 			stopSimulator()
 			setStatus("Simulator Stopped.", "bg-success")
@@ -81,6 +85,9 @@ func main() {
 	wr := new(WebRenderer)
 	wr.New(ctx)
 	s.Renderer = wr
+
+	fmt.Println("Initializing Speaker...")
+	s.Speaker = ws
 
 	s.CyclesPerFrame = func(cycles uint64) {
 		jQuery("#cycles").SetText(strconv.Itoa(int(cycles)))
