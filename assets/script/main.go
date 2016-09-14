@@ -23,6 +23,7 @@ var ctx *js.Object
 var fram []byte
 var firmware []byte
 var stop bool
+var speaker *WebSpeaker
 
 func main() {
 	loadAPI()
@@ -30,8 +31,8 @@ func main() {
 	s := new(dodosim.SimulatorSync)
 	stop = false
 
-	ws := new(WebSpeaker)
-	ws.New()
+	speaker = new(WebSpeaker)
+	speaker.New()
 
 	jQuery("#runButton").On(jquery.CLICK, func() {
 		go func() {
@@ -67,10 +68,22 @@ func main() {
 
 	jQuery("#simModal").On("hidden.bs.modal", func() {
 		go func() {
-			ws.Stop()
 			fmt.Println("About to stop simulator")
 			stopSimulator()
 			setStatus("Simulator Stopped.", "bg-success")
+		}()
+	})
+
+	jQuery("#resetButton").On(jquery.CLICK, func() {
+		go func() {
+			s.Cpu.Reset(s.Bus)
+		}()
+	})
+
+	jQuery("#muteButton").On(jquery.CLICK, func() {
+		go func() {
+			speaker.ToggleMute()
+			jQuery("#muteButton").ToggleClass("active")
 		}()
 	})
 
@@ -87,7 +100,7 @@ func main() {
 	s.Renderer = wr
 
 	fmt.Println("Initializing Speaker...")
-	s.Speaker = ws
+	s.Speaker = speaker
 
 	s.CyclesPerFrame = func(cycles uint64) {
 		jQuery("#cycles").SetText(strconv.Itoa(int(cycles)))
@@ -130,6 +143,8 @@ func getUrlParameter(param string) string {
 
 func runSimulator(s *dodosim.SimulatorSync) {
 	stop = false
+
+	speaker.Enable()
 
 	keyState := make(map[int]bool)
 
@@ -198,6 +213,7 @@ func runSimulator(s *dodosim.SimulatorSync) {
 }
 
 func stopSimulator() {
+	speaker.Disable()
 	stop = true
 }
 

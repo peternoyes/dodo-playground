@@ -58,21 +58,27 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4 class="modal-title">Simulator</h4>
+						<h4 class="modal-title">Dodo Simulator</h4>
 					</div>
-					<div class="modal-body">
-						<center>
-							<canvas id="gameCanvas"></canvas>
+					<div class="modal-body center">
+							<div class="btn-group btn-group-xs">
+								<button id="resetButton" type="button" class="btn btn-default">Reset</button>
+								<button id="muteButton" type="button" class="btn btn-default">Mute</button>
+							</div>
+							
 							<p>
+								<canvas id="gameCanvas"></canvas>
+							</p>
+
+							<p class="text-info">
 								Cycles Per Frame: <span id="cycles"></span>
 							</p>
-							<p>
+							<p class="text-info">
 								<span id="gamelink"></span>
 							</p>
-							<p>
+							<p class="text-muted">
 								<small>Use 'A', 'B' and Arrow Keys to Play</small>
 							</p>
-						</center>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
