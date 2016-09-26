@@ -57,6 +57,16 @@ html, body {
 	text-align: center;
 }
 
+.toshow
+{
+  	display:none;
+}
+
+.navbar-nav > li{
+  margin-left:10px;
+  margin-right:10px;
+}
+
 #results {
 	padding: 15px;
 	min-height: 100px;
