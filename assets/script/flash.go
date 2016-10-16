@@ -32,7 +32,7 @@ func flashLogic() {
 		msg := Message{Object: js.Global.Get("Object").New()}
 		msg.Message = "version"
 
-		js.Global.Get("chrome").Get("runtime").Call("sendMessage", "jnfidbnlancdlcefikapeegaccmeicmb", msg, func(reply *js.Object) {
+		js.Global.Get("chrome").Get("runtime").Call("sendMessage", "bckholjcbphjhdfgbejkjflcafdgbdkb", msg, func(reply *js.Object) {
 			go func() {
 				if reply != nil && reply != js.Undefined {
 					v := reply.Get("version").Float()
@@ -56,7 +56,7 @@ func flashLogic() {
 				portObj := Port{Object: js.Global.Get("Object").New()}
 				portObj.Name = "dodo_flash"
 
-				port := js.Global.Get("chrome").Get("runtime").Call("connect", "jnfidbnlancdlcefikapeegaccmeicmb", portObj)
+				port := js.Global.Get("chrome").Get("runtime").Call("connect", "bckholjcbphjhdfgbejkjflcafdgbdkb", portObj)
 
 				fmt.Println(port)
 
@@ -129,7 +129,7 @@ func flashLogic() {
 			msg := Message{Object: js.Global.Get("Object").New()}
 			msg.Message = "devices"
 
-			js.Global.Get("chrome").Get("runtime").Call("sendMessage", "jnfidbnlancdlcefikapeegaccmeicmb", msg, func(reply *js.Object) {
+			js.Global.Get("chrome").Get("runtime").Call("sendMessage", "bckholjcbphjhdfgbejkjflcafdgbdkb", msg, func(reply *js.Object) {
 				go func() {
 					if reply != nil && reply != js.Undefined {
 						l := reply.Length()

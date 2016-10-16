@@ -1,5 +1,7 @@
 # Dodo: 6502 Game System
 
+![Dodo](/assets/dodo.png)
+
 ## Introduction
 
 Dodo is an open source 8-bit 6502 portable game system. The concept of Dodo is to be a nostalgic system with real hardware and a great development environment. Rather than being built around a Raspberry PI, Dodo is constructed with real 8-bit chips. The system can be hand soldered easily at home because it uses all DIP components.
