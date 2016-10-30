@@ -45,4 +45,22 @@ var routes = Routes{
 		"/code/{id}",
 		Code,
 	},
+	Route{
+		"Login",
+		"GET",
+		"/login",
+		Login,
+	},
+	Route{
+		"Logout",
+		"GET",
+		"/logout",
+		Logout,
+	},
+	Route{
+		"Callback",
+		"GET",
+		"/callback",
+		Callback,
+	},
 }

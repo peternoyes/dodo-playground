@@ -7,12 +7,70 @@ import (
 	"strconv"
 )
 
+type TokenData struct {
+	Email string
+	Token string
+}
+
 type Binary struct {
 	Id      string
 	Source  string
 	Fram    []byte
 	Results string
 	Version string
+}
+
+func (t *TokenData) New(email, token string) {
+	t.Email = email
+	t.Token = token
+}
+
+func StoreToken(t *TokenData) error {
+	params := &dynamodb.PutItemInput{
+		Item: map[string]*dynamodb.AttributeValue{
+			"Email": {
+				S: aws.String(t.Email),
+			},
+			"Token": {
+				S: aws.String(t.Token),
+			},
+		},
+		TableName: aws.String("Tokens"),
+	}
+
+	_, err := svc.PutItem(params)
+
+	return err
+}
+
+func GetToken(email string) (*TokenData, error) {
+	params := &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"Email": {
+				S: aws.String(email),
+			},
+		},
+		TableName:      aws.String("Tokens"),
+		ConsistentRead: aws.Bool(true),
+	}
+
+	resp, err := svc.GetItem(params)
+
+	if err != nil {
+		return nil, err
+	}
+
+	item := resp.Item
+	if item == nil {
+		return nil, nil
+	}
+
+	t := &TokenData{
+		Email: email,
+		Token: aws.StringValue(item["Token"].S),
+	}
+
+	return t, nil
 }
 
 func (b *Binary) New(id string, source string, fram []byte, results string, version string) {

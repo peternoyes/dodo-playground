@@ -66,10 +66,37 @@ func main() {
 
 	}
 
+	loginLogic()
+	logoutLogic()
 	flashLogic()
 	runLogic(s)
 
 	setStatus("Ready. Click 'Run' to try your game in the simulator.", "bg-success")
+}
+
+func loginLogic() {
+	url := "http://localhost:3000/login"
+	jQuery("#loginButton").On(jquery.CLICK, func() {
+		go func() {
+
+			/*
+				newWindow := js.Global.Get("window").Call("open", url, "name", "height=600,width=450")
+				if js.Global.Get("window").Get("focus") != js.Undefined {
+					newWindow.Call("focus")
+				}*/
+
+			js.Global.Get("window").Get("location").Set("href", url)
+		}()
+	})
+}
+
+func logoutLogic() {
+	url := "http://localhost:3000/logout"
+	jQuery("#logoutButton").On(jquery.CLICK, func() {
+		go func() {
+			js.Global.Get("window").Get("location").Set("href", url)
+		}()
+	})
 }
 
 func getUrlParameter(param string) string {
