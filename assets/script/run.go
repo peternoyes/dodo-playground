@@ -12,6 +12,10 @@ import (
 func runLogic(s *dodosim.SimulatorSync) {
 	jQuery("#runButton").On(jquery.CLICK, func() {
 		go func() {
+			if !saveProjectCode() {
+				return
+			}
+
 			fmt.Println("Compile Initiated...")
 
 			setStatus("Compiling...", "bg-info")

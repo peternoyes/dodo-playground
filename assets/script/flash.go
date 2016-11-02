@@ -106,6 +106,10 @@ func flashLogic() {
 
 	jQuery("#flashButton").On(jquery.CLICK, func() {
 		go func() {
+			if !saveProjectCode() {
+				return
+			}
+
 			activePort = ""
 
 			jQuery("#flashBeginButton").SetProp("disabled", true)

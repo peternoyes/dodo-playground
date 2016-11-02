@@ -40,6 +40,11 @@ html, body {
     overflow-y: hidden;
 }
 
+.panel-height {
+	height: calc(100% - 40px);
+	overflow-y: auto;
+}
+
 #editor {
     height: 100%;
     overflow-y: auto;
@@ -53,8 +58,21 @@ html, body {
     padding: 15px;
 }
 
+.tab-pane {
+	padding: 15px;
+}
+
+.nav-padded {
+	padding-left: 15px;
+	padding-top: 15px;
+}
+
 .center {
 	text-align: center;
+}
+
+.center-responsive {
+	margin: 0 auto;
 }
 
 .toshow

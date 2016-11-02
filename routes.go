@@ -63,4 +63,34 @@ var routes = Routes{
 		"/callback",
 		Callback,
 	},
+	Route{
+		"ProjectsList",
+		"GET",
+		"/projects",
+		ProjectsList,
+	},
+	Route{
+		"ProjectGet",
+		"GET",
+		"/projects/{title}",
+		ProjectGet,
+	},
+	Route{
+		"ProjectUpdate",
+		"PUT",
+		"/projects/{title}",
+		ProjectUpdate,
+	},
+	Route{
+		"ProjectAdd",
+		"POST",
+		"/projects/{title}",
+		ProjectAdd,
+	},
+	Route{
+		"ProjectDelete",
+		"DELETE",
+		"/projects/{title}",
+		ProjectDelete,
+	},
 }

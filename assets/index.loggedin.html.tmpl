@@ -28,11 +28,12 @@
 			</div>
 		    <div class="navbar-collapse collapse">
 		      <ul class="nav navbar-nav">
-		      	<li><button id="runButton" type="button" class="btn btn-success navbar-btn">Run</button></li>
-		      	<li><button id="flashButton" type="button" class="btn btn-success navbar-btn toshow">Flash</button></li>
+		      	<li><button id="runButton" type="button" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-play-circle"></span> Run</button></li>
+		      	<li><button id="saveButton" type="button" class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button></li>
+		      	<li><button id="flashButton" type="button" class="btn btn-warning navbar-btn toshow"><span class="glyphicon glyphicon-download-alt"></span> Flash</button></li>
 		      </ul>
 		      <ul class="nav navbar-nav pull-right">
-				<li><button id="logoutButton" type="button" class="btn btn-success navbar-btn">Sign Out</button></li>
+				<li><button id="logoutButton" type="button" class="btn btn-primary navbar-btn">Sign Out</button></li>
 		      </ul>
 		    </div>
 		</nav>
@@ -49,9 +50,29 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-sm-4 fill-height-scroll left-border">
+				<div class="col-sm-4 fill-height left-border">
 					<div class="row">
-						<div id="api" class="markdown-body">
+						<ul class="nav nav-tabs nav-padded">
+							<li class="active"><a data-toggle="tab" href="#home">Home</a></li>
+							<li><a data-toggle="tab" href="#api">Documentation</a></li>
+						</ul>
+					</div>
+					<div class="row panel-height">
+						<div class="tab-content">
+							<div id="home" class="tab-pane fade in active">
+								<img src="{{.Gravatar}}" class="center-responsive img-circle img-responsive" width="96" height="96" />
+								<h3>Projects <button id="deleteButton" class="btn btn-default btn-sm pull-right disabled" type="button"><span class="glyphicon glyphicon-trash"></span></button> </h3>
+								<div id="projectslist" class="list-group">
+								</div>
+								<div class="input-group">
+								<input id="newBox" type="text" class="form-control" placeholder="New Project">
+								<span class="input-group-btn">
+								<button id="newButton" class="btn btn-default" type="button">Create</button>
+								</span>
+								</div>								
+							</div>
+							<div id="api" class="markdown-body tab-pane fade">
+							</div>
 						</div>
 					</div>
 				</div>

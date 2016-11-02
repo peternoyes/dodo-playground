@@ -49,8 +49,10 @@ func loadTemplates() (*template.Template, error) {
 
 func Main(w http.ResponseWriter, req *http.Request) {
 	template := "index.html.tmpl"
-	if authenticated(req) {
+	var obj interface{} = nil
+	if ok, user := authenticated(req); ok {
 		template = "index.loggedin.html.tmpl" // If authenticated server the full application, not just playground
+		obj = user
 	}
 
 	t, err := loadTemplates()
@@ -60,7 +62,7 @@ func Main(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = t.ExecuteTemplate(w, template, nil)
+	err = t.ExecuteTemplate(w, template, obj)
 	if err != nil {
 		log.Println("t.Execute:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

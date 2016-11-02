@@ -3,8 +3,10 @@ package main
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -30,11 +32,23 @@ var (
 	playground_secret = os.Getenv("PLAYGROUND_SECRET")
 )
 
+type User struct {
+	Email    string
+	Gravatar string
+}
+
+func (u *User) New(email string) {
+	u.Email = email
+	hasher := md5.New()
+	hasher.Write([]byte(email))
+	u.Gravatar = "http://www.gravatar.com/avatar/" + hex.EncodeToString(hasher.Sum(nil)) + "?s=256"
+}
+
 // Examines JWT token found in cookie to see if user is authenticated
-func authenticated(req *http.Request) bool {
+func authenticated(req *http.Request) (bool, *User) {
 	cookie, err := req.Cookie("token")
 	if err != nil {
-		return false
+		return false, nil
 	}
 
 	if cookie != nil {
@@ -48,20 +62,24 @@ func authenticated(req *http.Request) bool {
 		})
 
 		if err != nil {
-			return false
+			return false, nil
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			if seconds, ok := claims["exp"].(float64); ok {
 				expiration := time.Unix(int64(seconds), 0)
 				if expiration.Sub(time.Now()) > 0 {
-					return true
+					if email, ok := claims["email"].(string); ok {
+						u := &User{}
+						u.New(email)
+						return true, u
+					}
 				}
 			}
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 func encrypt(key, text []byte) ([]byte, error) {

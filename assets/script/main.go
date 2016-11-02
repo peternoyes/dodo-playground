@@ -25,6 +25,7 @@ var speaker *WebSpeaker
 
 func main() {
 	loadAPI()
+	projectsLogic()
 
 	s := new(dodosim.SimulatorSync)
 	stop = false
@@ -50,20 +51,22 @@ func main() {
 	s.SimulateSyncInit(firmware, fram)
 
 	// Load Code
-	id := getUrlParameter("code")
-	if id != "" {
-		code, err := downloadCode(id)
-		if err != nil {
-			setStatus("Error Fetching Source: "+err.Error(), "bg-danger")
-			return
+	if !IsProjects() {
+		id := getUrlParameter("code")
+		if id != "" {
+			code, err := downloadCode(id)
+			if err != nil {
+				setStatus("Error Fetching Source: "+err.Error(), "bg-danger")
+				return
+			} else {
+				js.Global.Get("editor").Call("setValue", code, -1)
+			}
 		} else {
-			js.Global.Get("editor").Call("setValue", code, -1)
-		}
-	} else {
-		// Download Sample Application
-		raw, _ := getAsset("sample.c")
-		js.Global.Get("editor").Call("setValue", string(raw), -1)
+			// Download Sample Application
+			raw, _ := getAsset("sample.c")
+			js.Global.Get("editor").Call("setValue", string(raw), -1)
 
+		}
 	}
 
 	loginLogic()
@@ -75,7 +78,7 @@ func main() {
 }
 
 func loginLogic() {
-	url := "http://localhost:3000/login"
+	url := "/login"
 	jQuery("#loginButton").On(jquery.CLICK, func() {
 		go func() {
 
@@ -91,7 +94,7 @@ func loginLogic() {
 }
 
 func logoutLogic() {
-	url := "http://localhost:3000/logout"
+	url := "/logout"
 	jQuery("#logoutButton").On(jquery.CLICK, func() {
 		go func() {
 			js.Global.Get("window").Get("location").Set("href", url)
