@@ -41,7 +41,7 @@ func (u *User) New(email string) {
 	u.Email = email
 	hasher := md5.New()
 	hasher.Write([]byte(email))
-	u.Gravatar = "http://www.gravatar.com/avatar/" + hex.EncodeToString(hasher.Sum(nil)) + "?s=256"
+	u.Gravatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hasher.Sum(nil)) + "?s=256"
 }
 
 // Examines JWT token found in cookie to see if user is authenticated

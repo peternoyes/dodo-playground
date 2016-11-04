@@ -9,6 +9,11 @@ RUN go get -u github.com/gopherjs/jquery
 RUN go get -u github.com/peternoyes/dodo-sim
 RUN go get -u github.com/russross/blackfriday
 
+RUN go get -u github.com/dgrijalva/jwt-go
+RUN go get -u github.com/google/go-github/github
+RUN go get -u golang.org/x/oauth2
+RUN go get -u golang.org/x/oauth2/github
+
 RUN go get -u -d github.com/gopherjs/gopherpen/...
 RUN go get -u -d -tags=dev github.com/gopherjs/gopherpen/...
 RUN go get -u -d -tags=generate github.com/gopherjs/gopherpen/...
