@@ -39,7 +39,7 @@ func main() {
 	c.Set("height", 128)
 
 	fram, _ = getAsset("fram.bin")
-	firmware, _ = getAsset("firmware")
+	firmware, _ = getAsset("firmware1_1.bin")
 
 	wr := new(WebRenderer)
 	wr.New(ctx)
