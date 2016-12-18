@@ -13,16 +13,18 @@ type TokenData struct {
 }
 
 type Binary struct {
-	Id      string
-	Source  string
-	Fram    []byte
-	Results string
-	Version string
+	Id       string
+	Source   string
+	Language string
+	Fram     []byte
+	Results  string
+	Version  string
 }
 
 type Project struct {
-	Title  string `json:"title"`
-	Source string `json:"source,omitempty"`
+	Title    string `json:"title"`
+	Source   string `json:"source,omitempty"`
+	Language string `json:"language,omitempty"`
 }
 
 func (t *TokenData) New(email, token string) {
@@ -78,9 +80,10 @@ func GetToken(email string) (*TokenData, error) {
 	return t, nil
 }
 
-func (b *Binary) New(id string, source string, fram []byte, results string, version string) {
+func (b *Binary) New(id string, source string, language string, fram []byte, results string, version string) {
 	b.Id = id
 	b.Source = source
+	b.Language = language
 	if fram != nil {
 		b.Fram = fram
 	} else {
@@ -98,6 +101,9 @@ func StoreBinary(b *Binary) error {
 			},
 			"Source": {
 				S: aws.String(b.Source),
+			},
+			"Language": {
+				S: aws.String(b.Language),
 			},
 			"Fram": {
 				B: b.Fram,
@@ -139,12 +145,19 @@ func GetBinary(id string) (*Binary, error) {
 		return nil, nil
 	}
 
+	l := "c"
+	li := item["Language"]
+	if li != nil {
+		l = aws.StringValue(li.S)
+	}
+
 	b := &Binary{
-		Id:      id,
-		Source:  aws.StringValue(item["Source"].S),
-		Fram:    item["Fram"].B,
-		Results: aws.StringValue(item["Results"].S),
-		Version: aws.StringValue(item["Version"].S),
+		Id:       id,
+		Source:   aws.StringValue(item["Source"].S),
+		Language: l,
+		Fram:     item["Fram"].B,
+		Results:  aws.StringValue(item["Results"].S),
+		Version:  aws.StringValue(item["Version"].S),
 	}
 
 	return b, nil
@@ -205,9 +218,16 @@ func GetProject(email, title string) (*Project, error) {
 		return nil, nil
 	}
 
+	l := "c"
+	li := item["Language"]
+	if li != nil {
+		l = aws.StringValue(li.S)
+	}
+
 	p := &Project{
-		Title:  title,
-		Source: aws.StringValue(item["Source"].S),
+		Title:    title,
+		Source:   aws.StringValue(item["Source"].S),
+		Language: l,
 	}
 
 	return p, nil
@@ -224,6 +244,9 @@ func StoreProject(email string, p *Project) error {
 			},
 			"Source": {
 				S: aws.String(p.Source),
+			},
+			"Language": {
+				S: aws.String(p.Language),
 			},
 		},
 		TableName: aws.String("Projects"),
@@ -245,6 +268,9 @@ func CreateProject(email string, p *Project) error {
 			},
 			"Source": {
 				S: aws.String(p.Source),
+			},
+			"Language": {
+				S: aws.String(p.Language),
 			},
 		},
 		TableName:           aws.String("Projects"),

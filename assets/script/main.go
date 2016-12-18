@@ -22,6 +22,7 @@ var fram []byte
 var firmware []byte
 var stop bool
 var speaker *WebSpeaker
+var language string
 
 func main() {
 	loadAPI()
@@ -32,6 +33,8 @@ func main() {
 
 	speaker = new(WebSpeaker)
 	speaker.New()
+
+	language = "c"
 
 	c := js.Global.Get("gameCanvas")
 	ctx = c.Call("getContext", "2d")
@@ -54,12 +57,14 @@ func main() {
 	if !IsProjects() {
 		id := getUrlParameter("code")
 		if id != "" {
-			code, err := downloadCode(id)
+			code, lang, err := downloadCode(id)
 			if err != nil {
 				setStatus("Error Fetching Source: "+err.Error(), "bg-danger")
 				return
 			} else {
 				js.Global.Get("editor").Call("setValue", code, -1)
+				language = lang
+				refreshLanguageDropdown()
 			}
 		} else {
 			// Download Sample Application
@@ -69,12 +74,37 @@ func main() {
 		}
 	}
 
+	languageLogic()
 	loginLogic()
 	logoutLogic()
 	flashLogic()
 	runLogic(s)
 
 	setStatus("Ready. Click 'Run' to try your game in the simulator.", "bg-success")
+}
+
+func refreshLanguageDropdown() {
+	fmt.Println("Refreshing: ", language)
+	switch language {
+	case "c":
+		jQuery("#activeLanguage").SetHtml("C")
+		break
+	case "assembly":
+		jQuery("#activeLanguage").SetHtml("Assembly")
+		break
+	}
+}
+
+func languageLogic() {
+	click := js.MakeFunc(func(this *js.Object, arguments []*js.Object) interface{} {
+		go func() {
+			language = strings.ToLower(jQuery(this).Text())
+			jQuery("#activeLanguage").SetHtml(jQuery(this).Html())
+		}()
+		return nil
+	})
+
+	jQuery("#dropdownMenuLanguage").On(jquery.CLICK, "li a", click)
 }
 
 func loginLogic() {
@@ -121,7 +151,20 @@ func compileCode() ([]byte, string, error) {
 
 	reader := strings.NewReader(val.String())
 
-	response, err := http.Post("/build", "application/text", reader)
+	req, err := http.NewRequest(http.MethodPost, "/build", reader)
+	if err != nil {
+		return nil, "", err
+	}
+
+	req.Header.Set("Content-Type", "application/text")
+	req.Header.Set("X-Language", language)
+
+	client := &http.Client{}
+
+	response, err := client.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
 
 	defer response.Body.Close()
 	data, err := ioutil.ReadAll(response.Body)
@@ -133,6 +176,8 @@ func compileCode() ([]byte, string, error) {
 		}{}
 
 		err = json.Unmarshal(data, &res)
+
+		fmt.Println(res.Binary)
 
 		return res.Binary, res.Id, err
 	} else {
@@ -146,18 +191,20 @@ func compileCode() ([]byte, string, error) {
 	}
 }
 
-func downloadCode(id string) (string, error) {
+func downloadCode(id string) (string, string, error) {
 	response, err := http.Get("/code/" + id)
 	if err != nil {
-		return "", err
+		return "", "c", err
 	}
+
+	l := response.Header.Get("X-Language")
 
 	defer response.Body.Close()
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return "", err
+		return "", "c", err
 	} else {
-		return string(data), nil
+		return string(data), l, nil
 	}
 }
 

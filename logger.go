@@ -12,8 +12,8 @@ func Logger(inner http.Handler, name string) http.Handler {
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept")
-		w.Header().Set("Access-Control-Expose-Headers", "Authorization, Content-Type, Accept")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept, X-Language")
+		w.Header().Set("Access-Control-Expose-Headers", "Authorization, Content-Type, Accept, X-Language")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Expires", "-1")
 

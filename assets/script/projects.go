@@ -131,7 +131,21 @@ int main() {
 
 	reader := strings.NewReader(source)
 
-	response, err := http.Post("/projects/"+title, "application/text", reader)
+	req, err := http.NewRequest(http.MethodPost, "/projects/"+title, reader)
+	if err != nil {
+		setStatus("Failed to create "+title, "bg-danger")
+		return false
+	}
+
+	language = "c"
+	refreshLanguageDropdown()
+
+	req.Header.Set("Content-Type", "application/text")
+	req.Header.Set("X-Language", language)
+
+	client := &http.Client{}
+
+	response, err := client.Do(req)
 
 	defer response.Body.Close()
 	_, err = ioutil.ReadAll(response.Body)
@@ -188,8 +202,10 @@ func deleteProject() bool {
 
 func loadProjectCode(title string) {
 	if title != "" {
-		code, err := getProjectCode(title)
+		code, lang, err := getProjectCode(title)
 		if err == nil {
+			language = lang
+			refreshLanguageDropdown()
 			js.Global.Get("editor").Call("setValue", code, -1)
 		}
 	} else {
@@ -214,6 +230,7 @@ func saveProjectCode() bool {
 		}
 
 		req.Header.Set("Content-Type", "application/text")
+		req.Header.Set("X-Language", language)
 
 		client := &http.Client{}
 
@@ -267,28 +284,29 @@ func getProjects() ([]string, error) {
 	}
 }
 
-func getProjectCode(title string) (string, error) {
+func getProjectCode(title string) (string, string, error) {
 	response, err := http.Get("/projects/" + title)
 	if err != nil {
-		return "", err
+		return "", "c", err
 	}
 
 	defer response.Body.Close()
 	data, err := ioutil.ReadAll(response.Body)
 	if response.StatusCode == http.StatusOK {
 		project := struct {
-			Title  string `json:"title"`
-			Source string `json:"source"`
+			Title    string `json:"title"`
+			Source   string `json:"source"`
+			Language string `json:"language"`
 		}{}
 
 		err = json.Unmarshal(data, &project)
 		if err != nil {
-			return "", err
+			return "", "c", err
 		}
 
-		return project.Source, nil
+		return project.Source, project.Language, nil
 
 	} else {
-		return "", errors.New(string(data))
+		return "", "c", errors.New(string(data))
 	}
 }

@@ -88,8 +88,13 @@ func Build(w http.ResponseWriter, r *http.Request) {
 	err = nil
 	var output []byte
 
+	l := r.Header.Get("X-Language")
+	if l == "" {
+		l = "c"
+	}
+
 	b, _ := GetBinary(crc)
-	if b != nil && b.Version == "1.1" {
+	if b != nil && b.Language == l && b.Version == "1.1" {
 		if b.Results == "Success" {
 			output = b.Fram
 			err = nil
@@ -98,7 +103,7 @@ func Build(w http.ResponseWriter, r *http.Request) {
 			err = errors.New(b.Results)
 		}
 	} else {
-		output, err = Compile(body)
+		output, err = Compile(body, l)
 
 		results := ""
 		if err != nil {
@@ -108,7 +113,7 @@ func Build(w http.ResponseWriter, r *http.Request) {
 		}
 
 		b = &Binary{}
-		b.New(crc, source, output, results, "1.1")
+		b.New(crc, source, l, output, results, "1.1")
 
 		errStore := StoreBinary(b)
 
@@ -155,6 +160,7 @@ func Code(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("X-Language", b.Language)
 	w.WriteHeader(http.StatusOK)
 	io.WriteString(w, code)
 }

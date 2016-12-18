@@ -1,0 +1,22 @@
+.import draw_sprite
+.import display
+.import clear_sprite
+.import set_pixel
+.import draw_line
+.import delay_ms
+.import led_on
+.import led_off
+.import wait
+.import load_music
+.import play_effect
+.import spi_enable
+.import spi_disable
+.import spi_write
+.import clear
+.import copy_background
+.import draw_string
+.import set_cursor
+.import read_buttons
+
+.import pusha
+.import pushax

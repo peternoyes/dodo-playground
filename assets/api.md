@@ -48,6 +48,74 @@ int main() {
 	return 0;
 }
 ```
+
+## 6502 Assembly
+
+It is also possible to write Dodo games in 6502 assembly. There is a language toggle in the navigation bar to specify the language preference. The C API is nearly identical to the C API.
+
+### Function Names
+
+The functions in assembly are simply the C names but all lowercase. For instance
+
+``` cpp
+CLEAR();
+```
+
+would be
+
+``` assembly
+jsr clear
+```
+
+### Calling Convention
+
+The parameters in assembly are also the same as in C, except that they need to manually be pushed onto a stack. There are two functions for pushing parameters, pusha and pushax. For byte parameters, load the value int the A register and call pusha. For pointer parameters which are 16-bit, the upper and lower bytes need to be loaded into the A and X registers and then call pushax.
+
+Example
+
+``` assembly
+lda #4          ; row
+jsr pusha
+lda #3          ; column
+jsr pusha
+jsr set_cursor 	; call set_cursor
+
+lda #<message   ; pointer to message string
+ldx #>message
+jsr pushax      ; push pointer onto stack
+jsr draw_string ; call draw_string
+
+...
+
+; Null terminated string
+message: .byte "Hello, World", $0
+
+```
+
+### Assembly Skeleton
+
+``` assembly
+    .include "api.inc65"
+    .setcpu "6502"
+    .export main
+
+main:
+    ; clear the graphics in video memory
+    jsr clear
+
+loop:
+    ; game logic
+
+    ; push video memory to the OLED
+    jsr display
+
+    ; wait for the next interrupt
+    jsr wait
+
+    jmp loop
+
+```
+
  
 ## Screen
 

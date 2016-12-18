@@ -73,9 +73,15 @@ func ProjectUpdate(w http.ResponseWriter, r *http.Request) {
 
 		source := string(body)
 
+		l := r.Header.Get("X-Language")
+		if l == "" {
+			l = "c"
+		}
+
 		project := &Project{}
 		project.Title = title
 		project.Source = source
+		project.Language = l
 
 		err = StoreProject(user.Email, project)
 		if err != nil {
@@ -107,9 +113,15 @@ func ProjectAdd(w http.ResponseWriter, r *http.Request) {
 
 		source := string(body)
 
+		l := r.Header.Get("X-Language")
+		if l == "" {
+			l = "c"
+		}
+
 		project := &Project{}
 		project.Title = title
 		project.Source = source
+		project.Language = l
 
 		err = CreateProject(user.Email, project)
 		if err != nil {

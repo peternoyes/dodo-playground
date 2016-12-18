@@ -10,7 +10,21 @@ import (
 	"os/exec"
 )
 
-func Compile(source []byte) ([]byte, error) {
+func Compile(source []byte, language string) ([]byte, error) {
+	var libdir string
+	var fileName string
+
+	switch language {
+	case "c":
+		libdir = "lib"
+		fileName = "main.c"
+		break
+	case "assembly":
+		libdir = "lib-assembly"
+		fileName = "main.s65"
+		break
+	}
+
 	dir, err := ioutil.TempDir("", "build")
 	if err != nil {
 		return nil, err
@@ -18,12 +32,12 @@ func Compile(source []byte) ([]byte, error) {
 
 	defer os.RemoveAll(dir)
 
-	err = copyDir("lib", dir)
+	err = copyDir(libdir, dir)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ioutil.WriteFile(dir+"/main.c", source, 0644)
+	err = ioutil.WriteFile(dir+"/"+fileName, source, 0644)
 	if err != nil {
 		return nil, err
 	}
