@@ -24,6 +24,7 @@
 		.export draw_string
 		.export set_cursor
 		.export read_buttons
+		.export get_pixel
 
 pusha:
 		ldy sp
@@ -127,4 +128,8 @@ set_cursor:
 
 read_buttons:
 		lda #18
+		jmp ($FFF8)
+
+get_pixel:
+		lda #19
 		jmp ($FFF8)

@@ -17,6 +17,7 @@
 .import draw_string
 .import set_cursor
 .import read_buttons
+.import get_pixel
 
 .import pusha
 .import pushax

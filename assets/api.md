@@ -51,7 +51,7 @@ int main() {
 
 ## 6502 Assembly
 
-It is also possible to write Dodo games in 6502 assembly. There is a language toggle in the navigation bar to specify the language preference. The C API is nearly identical to the C API.
+It is also possible to write Dodo games in 6502 assembly. There is a toggle in the navigation bar to specify the language preference. The assembly API is nearly identical to the C API.
 
 ### Function Names
 
@@ -215,6 +215,19 @@ w            | byte       | width
 h            | byte       | height, must be multiple of 8
 
 Erases the rectangular portiion of the screen defined by the parameters. Note that background graphics will be erased as well.
+
+### GET_PIXEL
+
+```cpp
+GET_PIXEL(x, y);
+```
+
+Parameter    | Type       | Description
+-------------|------------|-----------------------------
+x            | byte       | x coordinate
+y            | byte       | y coordinate
+
+Returns the color of the pixel at the specified coordinates, 0 for black, 1 for white.
 
 ### SET_PIXEL
 
