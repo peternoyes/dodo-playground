@@ -18,6 +18,7 @@
 .import set_cursor
 .import read_buttons
 .import get_pixel
+.import get_version
 
 .import pusha
 .import pushax
