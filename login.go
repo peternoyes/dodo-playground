@@ -185,7 +185,7 @@ func Callback(w http.ResponseWriter, r *http.Request) {
 	opt := &g.ListOptions{}
 	opt.Page = 1
 	opt.PerPage = 30
-	emails, _, err := client.Users.ListEmails(opt) // Don't use User.Get, e-mail might be private
+	emails, _, err := client.Users.ListEmails(r.Context(), opt) // Don't use User.Get, e-mail might be private
 
 	if err != nil {
 		return
