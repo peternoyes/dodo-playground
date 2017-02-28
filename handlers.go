@@ -94,7 +94,7 @@ func Build(w http.ResponseWriter, r *http.Request) {
 	}
 
 	b, _ := GetBinary(crc)
-	if b != nil && b.Language == l && b.Version == "1.0.0" {
+	if b != nil && b.Language == l && b.Version == "1.0.1" {
 		if b.Results == "Success" {
 			output = b.Fram
 			err = nil
@@ -113,7 +113,7 @@ func Build(w http.ResponseWriter, r *http.Request) {
 		}
 
 		b = &Binary{}
-		b.New(crc, source, l, output, results, "1.0.0")
+		b.New(crc, source, l, output, results, "1.0.1")
 
 		errStore := StoreBinary(b)
 
