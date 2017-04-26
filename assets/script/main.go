@@ -54,24 +54,24 @@ func main() {
 	s.SimulateSyncInit(firmware, fram)
 
 	// Load Code
-	if !IsProjects() {
-		id := getUrlParameter("code")
-		if id != "" {
-			code, lang, err := downloadCode(id)
-			if err != nil {
-				setStatus("Error Fetching Source: "+err.Error(), "bg-danger")
-				return
-			} else {
-				js.Global.Get("editor").Call("setValue", code, -1)
-				language = lang
-				refreshLanguageDropdown()
-			}
+	isEmptyProject := false
+	id := getUrlParameter("code")
+	if id != "" {
+		code, lang, err := downloadCode(id)
+		if err != nil {
+			setStatus("Error Fetching Source: "+err.Error(), "bg-danger")
+			return
 		} else {
-			// Download Sample Application
-			raw, _ := getAsset("sample.c")
-			js.Global.Get("editor").Call("setValue", string(raw), -1)
-
+			js.Global.Get("editor").Call("setValue", code, -1)
+			language = lang
+			refreshLanguageDropdown()
 		}
+	} else if !IsProjects() {
+		// Download Sample Application
+		raw, _ := getAsset("sample.c")
+		js.Global.Get("editor").Call("setValue", string(raw), -1)
+	} else {
+		isEmptyProject = true
 	}
 
 	languageLogic()
@@ -80,7 +80,9 @@ func main() {
 	flashLogic()
 	runLogic(s)
 
-	setStatus("Ready. Click 'Run' to try your game in the simulator.", "bg-success")
+	if !isEmptyProject {
+		setStatus("Ready. Click 'Run' to try your game in the simulator.", "bg-success")
+	}
 }
 
 func refreshLanguageDropdown() {

@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	//"fmt"
-	"fmt"
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/jquery"
 	"io/ioutil"
@@ -41,9 +39,6 @@ func projectsLogic() {
 			}()
 		})
 
-		jQuery("#deleteButton").AddClass("disabled")
-		jQuery("#deleteButton").SetProp("disabled", true)
-
 		jQuery("#deleteButton").On(jquery.CLICK, func() {
 			go func() {
 				deleteProject()
@@ -51,24 +46,51 @@ func projectsLogic() {
 		})
 
 		loadProjectList()
+
+		setActiveProject(nil)
 	}
 }
 
 func setActiveProject(obj *js.Object) {
-	jQuery("#projectslist > a").RemoveClass("active")
 	if obj != nil && obj != js.Undefined {
-		fmt.Println(obj)
+
+		project := jQuery(obj).Text()
+
+		if !loadProjectCode(project) {
+			setStatus("Failed to load "+project, "bg-danger")
+			return
+		}
+
+		jQuery("#projectslist > a").RemoveClass("active")
+		activeProject = project
+
 		jQuery(obj).AddClass("active")
-		activeProject = jQuery(obj).Text()
+
+		setStatus("Successfully loaded "+activeProject, "bg-success")
+
+		jQuery(obj).AddClass("active")
+
+		jQuery("#saveButton").RemoveClass("disabled")
+		jQuery("#saveButton").SetProp("disabled", false)
 
 		jQuery("#deleteButton").RemoveClass("disabled")
 		jQuery("#deleteButton").SetProp("disabled", false)
+
+		js.Global.Get("editor").Call("setReadOnly", false)
 	} else {
+		jQuery("#projectslist > a").RemoveClass("active")
 		activeProject = ""
+
+		setStatus("Load or create a project from the right panel", "bg-info")
+
+		jQuery("#saveButton").AddClass("disabled")
+		jQuery("#saveButton").SetProp("disabled", true)
+
 		jQuery("#deleteButton").AddClass("disabled")
 		jQuery("#deleteButton").SetProp("disabled", true)
+
+		js.Global.Get("editor").Call("setReadOnly", true)
 	}
-	loadProjectCode(activeProject)
 }
 
 func loadProjectList() {
@@ -76,21 +98,9 @@ func loadProjectList() {
 
 	projects, err := getProjects()
 	if err == nil {
-		activeID := ""
-		for i, p := range projects {
-			if i == 0 {
-				activeID = p
-			}
-
+		for _, p := range projects {
 			jQuery("#projectslist").Append("<a id='project" + p + "' href='#' class='list-group-item'>" + p + "</a>")
 		}
-
-		var active *js.Object = nil
-		if activeID != "" {
-			active = jQuery("#project" + activeID).Get()
-		}
-
-		setActiveProject(active)
 	}
 }
 
@@ -200,17 +210,22 @@ func deleteProject() bool {
 	return true
 }
 
-func loadProjectCode(title string) {
+func loadProjectCode(title string) bool {
 	if title != "" {
 		code, lang, err := getProjectCode(title)
-		if err == nil {
-			language = lang
-			refreshLanguageDropdown()
-			js.Global.Get("editor").Call("setValue", code, -1)
+		if err != nil {
+			return false
 		}
+
+		language = lang
+		refreshLanguageDropdown()
+		js.Global.Get("editor").Call("setValue", code, -1)
+
 	} else {
 		js.Global.Get("editor").Call("setValue", "", -1)
 	}
+
+	return true
 }
 
 func saveProjectCode() bool {
