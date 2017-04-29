@@ -101,24 +101,49 @@
 						<h4 class="modal-title">Dodo Simulator</h4>
 					</div>
 					<div class="modal-body center">
-							<div class="btn-group btn-group-xs">
-								<button id="resetButton" type="button" class="btn btn-default">Reset</button>
-								<button id="muteButton" type="button" class="btn btn-default">Mute</button>
+						<div class="container-fluid fill-height">
+							<div class="row">
+								<div class="btn-group btn-group-xs">
+									<button id="resetButton" type="button" class="btn btn-default">Reset</button>
+									<button id="muteButton" type="button" class="btn btn-default">Mute</button>
+								</div>
+							</div>
+
+							<div class="row">
+								<canvas id="gameCanvas"></canvas>
 							</div>
 							
-							<p>
-								<canvas id="gameCanvas"></canvas>
-							</p>
+							<div class="row">
+								<div class="col-xs-6">
+									<div class="row">
+										<button id="upButton" type="button" class="btn btn-default"><span class="glyphicon glyphicon-arrow-up"></span></button>
+									</div>
+									<div class="row">
+										<button style="margin-right:34px" id="leftButton" type="button" class="btn btn-default"><span class="glyphicon glyphicon-arrow-left"></span></button>
+										<button style="margin-left:0px"id="rightButton" type="button" class="btn btn-default"><span class="glyphicon glyphicon-arrow-right"></span></button>
+									</div>
+									<div class="row">
+										<button id="downButton" type="button" class="btn btn-default"><span class="glyphicon glyphicon-arrow-down"></span></button>
+									</div>
+								</div>
+								<div class="col-xs-6">
+									<button style="margin-top:34px" id="aButton" type="button" class="btn btn-default">A</button>
+									<button style="margin-top:34px" id="bButton" type="button" class="btn btn-default">B</button>
+								</div>
+							</div>
 
-							<p class="text-info">
-								Cycles Per Frame: <span id="cycles"></span>
-							</p>
-							<p class="text-info">
-								<span id="gamelink"></span> <button id="copyButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-copy"></span></button>
-							</p>
-							<p class="text-muted">
-								<small>Use 'A', 'B' and Arrow Keys to Play</small>
-							</p>
+							<div class ="row">
+								<p class="text-info">
+									Cycles Per Frame: <span id="cycles"></span>
+								</p>
+								<p class="text-info">
+									<span id="gamelink"></span> <button id="copyButton" class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-copy"></span></button>
+								</p>
+								<p class="text-muted">
+									<small>Use 'A', 'B' and Arrow Keys to Play</small>
+								</p>
+							</div>
+						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

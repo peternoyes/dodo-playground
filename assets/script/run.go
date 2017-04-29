@@ -89,6 +89,8 @@ func runSimulator(s *dodosim.SimulatorSync) {
 	speaker.Enable()
 
 	keyState := make(map[int]bool)
+	buttonState := make(map[string]bool)
+	buttons := []string{"upButton", "leftButton", "rightButton", "downButton", "aButton", "bButton"}
 
 	downHandler := func(event *js.Object) {
 		k := event.Get("keyCode").Int()
@@ -110,8 +112,38 @@ func runSimulator(s *dodosim.SimulatorSync) {
 		keyState[k] = false
 	}
 
+	buttonDownHandler := func(event *js.Object) {
+		go func() {
+			event.Call("preventDefault")
+			tgt := event.Get("target")
+			if tgt.Get("tagName").String() == "SPAN" {
+				tgt = tgt.Get("parentNode")
+			}
+
+			id := tgt.Get("id").String()
+			buttonState[id] = true
+		}()
+	}
+
+	buttonUpHandler := func(event *js.Object) {
+		go func() {
+			tgt := event.Get("target")
+			if tgt.Get("tagName").String() == "SPAN" {
+				tgt = tgt.Get("parentNode")
+			}
+
+			id := tgt.Get("id").String()
+			buttonState[id] = false
+		}()
+	}
+
 	js.Global.Call("addEventListener", "keydown", downHandler)
 	js.Global.Call("addEventListener", "keyup", upHandler)
+
+	for _, s := range buttons {
+		jQuery("#"+s).On(jquery.MOUSEDOWN, func(event *js.Object) { buttonDownHandler(event) })
+		jQuery("#"+s).On(jquery.MOUSEUP, func(event *js.Object) { buttonUpHandler(event) })
+	}
 
 	// Measure 2 seconds worth, to figure out delay
 	start := time.Now()
@@ -132,22 +164,22 @@ func runSimulator(s *dodosim.SimulatorSync) {
 
 	Every(time.Millisecond*time.Duration(delay), func() bool {
 		k := ""
-		if keyState[37] {
+		if keyState[37] || buttonState["leftButton"] {
 			k += "L"
 		}
-		if keyState[38] {
+		if keyState[38] || buttonState["upButton"] {
 			k += "U"
 		}
-		if keyState[39] {
+		if keyState[39] || buttonState["rightButton"] {
 			k += "R"
 		}
-		if keyState[40] {
+		if keyState[40] || buttonState["downButton"] {
 			k += "D"
 		}
-		if keyState[65] {
+		if keyState[65] || buttonState["aButton"] {
 			k += "A"
 		}
-		if keyState[66] {
+		if keyState[66] || buttonState["bButton"] {
 			k += "B"
 		}
 
@@ -156,6 +188,11 @@ func runSimulator(s *dodosim.SimulatorSync) {
 		if stop {
 			js.Global.Call("removeEventListener", "keydown", downHandler)
 			js.Global.Call("removeEventListener", "keyup", upHandler)
+
+			for _, s := range buttons {
+				jQuery("#"+s).Off(jquery.MOUSEDOWN, nil)
+				jQuery("#"+s).Off(jquery.MOUSEUP, nil)
+			}
 		}
 
 		return !stop
