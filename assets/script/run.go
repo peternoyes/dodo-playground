@@ -60,6 +60,17 @@ func runLogic(s *dodosim.SimulatorSync) {
 		}()
 	})
 
+	jQuery("#copyButton").On(jquery.CLICK, func() {
+		go func() {
+			parent := jQuery("#simModal")
+			temp := jQuery(js.Global.Get("document").Call("createElement", "input"))
+			parent.Call("append", temp)
+			temp.SetVal(jQuery("#gamelink").Text()).Select()
+			js.Global.Get("document").Call("execCommand", "copy")
+			temp.Remove()
+		}()
+	})
+
 	jQuery("#muteButton").On(jquery.CLICK, func() {
 		go func() {
 			speaker.ToggleMute()
@@ -70,7 +81,6 @@ func runLogic(s *dodosim.SimulatorSync) {
 	s.CyclesPerFrame = func(cycles uint64) {
 		jQuery("#cycles").SetText(strconv.Itoa(int(cycles)))
 	}
-
 }
 
 func runSimulator(s *dodosim.SimulatorSync) {
@@ -82,12 +92,20 @@ func runSimulator(s *dodosim.SimulatorSync) {
 
 	downHandler := func(event *js.Object) {
 		k := event.Get("keyCode").Int()
+		if event.Get("ctrlKey").Bool() || k == 91 || k == 67 { // Allow Ctrl+C
+			return
+		}
+
 		event.Call("preventDefault")
 		keyState[k] = true
 	}
 
 	upHandler := func(event *js.Object) {
 		k := event.Get("keyCode").Int()
+		if event.Get("ctrlKey").Bool() || k == 91 || k == 67 {
+			return
+		}
+
 		event.Call("preventDefault")
 		keyState[k] = false
 	}
