@@ -317,7 +317,17 @@ PLAY_EFFECT(effect);
 
 The sound effects are stored in the same format as the music. For an affect it may be of benefit to use more frequencies than just those that correspond to notes. 
 
-An effect will play on repeat until a subsequent call to PLAY_EFFECT with 0 passed in.
+An effect will play on repeat until a subsequent call to PLAY_EFFECT with 0 passed in as the effect parameter.
+
+### PLAY_EFFECT_ONCE
+
+Parameter    | Type       | Description
+-------------|------------|-----------------------------
+effect       | *byte      | pointer to effect
+
+PLAY_EFFECT_ONCE(effect);
+
+Identical to PLAY_EFFECT except that the effect will play exactly once and then automatically stop.
 
 ### CLEAR
 
