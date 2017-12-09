@@ -143,6 +143,9 @@ func runSimulator(s *dodosim.SimulatorSync) {
 	for _, s := range buttons {
 		jQuery("#"+s).On(jquery.MOUSEDOWN, func(event *js.Object) { buttonDownHandler(event) })
 		jQuery("#"+s).On(jquery.MOUSEUP, func(event *js.Object) { buttonUpHandler(event) })
+
+		jQuery("#"+s).On(jquery.TOUCHSTART, func(event *js.Object) { buttonDownHandler(event) })
+		jQuery("#"+s).On(jquery.TOUCHEND, func(event *js.Object) { buttonUpHandler(event) })
 	}
 
 	// Measure 2 seconds worth, to figure out delay
