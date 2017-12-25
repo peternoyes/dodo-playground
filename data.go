@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"hash/crc32"
 	"strconv"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
 type TokenData struct {
@@ -14,17 +15,18 @@ type TokenData struct {
 
 type Binary struct {
 	Id       string
+	Version  string
 	Source   string
 	Language string
 	Fram     []byte
 	Results  string
-	Version  string
 }
 
 type Project struct {
 	Title    string `json:"title"`
 	Source   string `json:"source,omitempty"`
 	Language string `json:"language,omitempty"`
+	Version  string `json:"version,omitempty"`
 }
 
 func (t *TokenData) New(email, token string) {
@@ -97,7 +99,10 @@ func StoreBinary(b *Binary) error {
 	params := &dynamodb.PutItemInput{
 		Item: map[string]*dynamodb.AttributeValue{
 			"Id": {
-				S: aws.String(b.Id),
+				S: aws.String(b.Id + "_" + b.Version),
+			},
+			"Version": {
+				S: aws.String(b.Version),
 			},
 			"Source": {
 				S: aws.String(b.Source),
@@ -111,9 +116,6 @@ func StoreBinary(b *Binary) error {
 			"Results": {
 				S: aws.String(b.Results),
 			},
-			"Version": {
-				S: aws.String(b.Version),
-			},
 		},
 		TableName: aws.String("Binaries"),
 	}
@@ -123,11 +125,11 @@ func StoreBinary(b *Binary) error {
 	return err
 }
 
-func GetBinary(id string) (*Binary, error) {
+func GetBinary(id, version string) (*Binary, error) {
 	params := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"Id": {
-				S: aws.String(id),
+				S: aws.String(id + "_" + version),
 			},
 		},
 		TableName:      aws.String("Binaries"),
@@ -153,11 +155,11 @@ func GetBinary(id string) (*Binary, error) {
 
 	b := &Binary{
 		Id:       id,
+		Version:  aws.StringValue(item["Version"].S),
 		Source:   aws.StringValue(item["Source"].S),
 		Language: l,
 		Fram:     item["Fram"].B,
 		Results:  aws.StringValue(item["Results"].S),
-		Version:  aws.StringValue(item["Version"].S),
 	}
 
 	return b, nil
@@ -224,10 +226,17 @@ func GetProject(email, title string) (*Project, error) {
 		l = aws.StringValue(li.S)
 	}
 
+	v := DefaultVersion()
+	vi := item["Version"]
+	if vi != nil {
+		v = aws.StringValue(vi.S)
+	}
+
 	p := &Project{
 		Title:    title,
 		Source:   aws.StringValue(item["Source"].S),
 		Language: l,
+		Version:  v,
 	}
 
 	return p, nil
@@ -247,6 +256,9 @@ func StoreProject(email string, p *Project) error {
 			},
 			"Language": {
 				S: aws.String(p.Language),
+			},
+			"Version": {
+				S: aws.String(p.Version),
 			},
 		},
 		TableName: aws.String("Projects"),
@@ -271,6 +283,9 @@ func CreateProject(email string, p *Project) error {
 			},
 			"Language": {
 				S: aws.String(p.Language),
+			},
+			"Version": {
+				S: aws.String(p.Version),
 			},
 		},
 		TableName:           aws.String("Projects"),

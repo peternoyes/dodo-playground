@@ -2,10 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func ProjectsList(w http.ResponseWriter, r *http.Request) {
@@ -78,10 +79,16 @@ func ProjectUpdate(w http.ResponseWriter, r *http.Request) {
 			l = "c"
 		}
 
+		v := r.Header.Get("X-Version")
+		if v == "" {
+			v = DefaultVersion()
+		}
+
 		project := &Project{}
 		project.Title = title
 		project.Source = source
 		project.Language = l
+		project.Version = v
 
 		err = StoreProject(user.Email, project)
 		if err != nil {
@@ -118,10 +125,16 @@ func ProjectAdd(w http.ResponseWriter, r *http.Request) {
 			l = "c"
 		}
 
+		v := r.Header.Get("X-Version")
+		if v == "" {
+			v = DefaultVersion()
+		}
+
 		project := &Project{}
 		project.Title = title
 		project.Source = source
 		project.Language = l
+		project.Version = v
 
 		err = CreateProject(user.Email, project)
 		if err != nil {

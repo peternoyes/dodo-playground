@@ -10,17 +10,19 @@ import (
 	"os/exec"
 )
 
-func Compile(source []byte, language string) ([]byte, error) {
+func Compile(source []byte, language, version string) ([]byte, error) {
 	var libdir string
 	var fileName string
 
+	fmt.Println("Compiling... : " + version)
+
 	switch language {
 	case "c":
-		libdir = "lib"
+		libdir = version + "/lib"
 		fileName = "main.c"
 		break
 	case "assembly":
-		libdir = "lib-assembly"
+		libdir = version + "/lib-assembly"
 		fileName = "main.s65"
 		break
 	}

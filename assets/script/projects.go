@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"github.com/gopherjs/gopherjs/js"
-	"github.com/gopherjs/jquery"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/gopherjs/gopherjs/js"
+	"github.com/gopherjs/jquery"
 )
 
 var activeProject string = ""
@@ -150,6 +151,9 @@ int main() {
 	language = "c"
 	refreshLanguageDropdown()
 
+	version = "1.0.1"
+	refreshVersionDropdown()
+
 	req.Header.Set("Content-Type", "application/text")
 	req.Header.Set("X-Language", language)
 
@@ -212,13 +216,17 @@ func deleteProject() bool {
 
 func loadProjectCode(title string) bool {
 	if title != "" {
-		code, lang, err := getProjectCode(title)
+		code, lang, ver, err := getProjectCode(title)
 		if err != nil {
 			return false
 		}
 
 		language = lang
 		refreshLanguageDropdown()
+
+		version = ver
+		refreshVersionDropdown()
+
 		js.Global.Get("editor").Call("setValue", code, -1)
 
 	} else {
@@ -246,6 +254,7 @@ func saveProjectCode() bool {
 
 		req.Header.Set("Content-Type", "application/text")
 		req.Header.Set("X-Language", language)
+		req.Header.Set("X-Version", version)
 
 		client := &http.Client{}
 
@@ -299,10 +308,10 @@ func getProjects() ([]string, error) {
 	}
 }
 
-func getProjectCode(title string) (string, string, error) {
+func getProjectCode(title string) (string, string, string, error) {
 	response, err := http.Get("/projects/" + title)
 	if err != nil {
-		return "", "c", err
+		return "", "c", "1.0.1", err
 	}
 
 	defer response.Body.Close()
@@ -312,16 +321,17 @@ func getProjectCode(title string) (string, string, error) {
 			Title    string `json:"title"`
 			Source   string `json:"source"`
 			Language string `json:"language"`
+			Version  string `json:"version"`
 		}{}
 
 		err = json.Unmarshal(data, &project)
 		if err != nil {
-			return "", "c", err
+			return "", "c", "1.0.1", err
 		}
 
-		return project.Source, project.Language, nil
+		return project.Source, project.Language, project.Version, nil
 
 	} else {
-		return "", "c", errors.New(string(data))
+		return "", "c", "1.0.1", errors.New(string(data))
 	}
 }

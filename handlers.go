@@ -2,15 +2,15 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/shurcooL/httpfs/html/vfstemplate"
 	"html/template"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/shurcooL/httpfs/html/vfstemplate"
 )
 
 type ErrorResponse struct {
@@ -93,17 +93,17 @@ func Build(w http.ResponseWriter, r *http.Request) {
 		l = "c"
 	}
 
-	b, _ := GetBinary(crc)
-	if b != nil && b.Language == l && b.Version == "1.0.1" {
-		if b.Results == "Success" {
-			output = b.Fram
-			err = nil
-		} else {
-			output = nil
-			err = errors.New(b.Results)
-		}
+	v := r.Header.Get("X-Version")
+	if v == "" {
+		v = DefaultVersion()
+	}
+
+	b, _ := GetBinary(crc, v)
+	if b != nil && b.Language == l && b.Results == "Success" {
+		output = b.Fram
+		err = nil
 	} else {
-		output, err = Compile(body, l)
+		output, err = Compile(body, l, v)
 
 		results := ""
 		if err != nil {
@@ -113,7 +113,7 @@ func Build(w http.ResponseWriter, r *http.Request) {
 		}
 
 		b = &Binary{}
-		b.New(crc, source, l, output, results, "1.0.1")
+		b.New(crc, source, l, output, results, v)
 
 		errStore := StoreBinary(b)
 
@@ -148,7 +148,7 @@ func Code(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	crc := vars["id"]
 
-	b, err := GetBinary(crc)
+	b, err := GetBinary(crc, DefaultVersion())
 	if err != nil {
 		BuildErrorResponse(w, http.StatusInternalServerError, err)
 		return

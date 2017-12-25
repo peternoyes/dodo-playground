@@ -1,0 +1,140 @@
+		.include "zeropage.inc65"
+
+		.setcpu "6502"
+
+		.export pusha
+		.export pushax
+
+		.export draw_sprite
+		.export display
+		.export clear_sprite
+		.export set_pixel
+		.export draw_line
+		.export delay_ms
+		.export led_on
+		.export led_off
+		.export wait
+		.export load_music
+		.export play_effect
+		.export spi_enable
+		.export spi_disable
+		.export spi_write
+		.export clear
+		.export copy_background
+		.export draw_string
+		.export set_cursor
+		.export read_buttons
+		.export get_pixel
+		.export get_version
+
+pusha:
+		ldy sp
+		beq @L1
+		dec sp
+		ldy #0
+		sta (sp), y
+		rts
+@L1:	dec sp+1
+		dec sp
+		sta (sp), y
+		rts
+
+pushax:
+		pha
+		lda sp
+		sec
+		sbc #2
+		sta sp
+		bcs @L1
+		dec sp+1
+@L1:	ldy #1
+		txa
+		sta (sp), y
+		pla
+		dey
+		sta (sp), y
+		rts
+
+draw_sprite:
+		lda #0
+		jmp ($FFF8)
+
+display:
+		lda #1
+		jmp ($FFF8)
+
+clear_sprite:
+		lda #2
+		jmp ($FFF8)
+
+set_pixel:
+		lda #3
+		jmp ($FFF8)
+
+draw_line:
+		lda #4
+		jmp ($FFF8)
+
+delay_ms:
+		lda #5
+		jmp ($FFF8)
+
+led_on:
+		lda #6
+		jmp ($FFF8)
+
+led_off:
+		lda #7
+		jmp ($FFF8)
+
+wait:
+		lda #8
+		jmp ($FFF8)
+
+load_music:
+		lda #9
+		jmp ($FFF8)
+
+play_effect:
+		lda #10
+		jmp ($FFF8)
+
+spi_enable:
+		lda #11
+		jmp ($FFF8)
+
+spi_disable:
+		lda #12
+		jmp ($FFF8)
+
+spi_write:
+		lda #13
+		jmp ($FFF8)
+	
+clear:
+		lda #14
+		jmp ($FFF8)
+
+copy_background:
+		lda #15
+		jmp ($FFF8)
+
+draw_string:
+		lda #16
+		jmp ($FFF8)
+
+set_cursor:
+		lda #17
+		jmp ($FFF8)
+
+read_buttons:
+		lda #18
+		jmp ($FFF8)
+
+get_pixel:
+		lda #19
+		jmp ($FFF8)
+
+get_version:
+		lda #20
+		jmp ($FFF8)

@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/jquery"
 	"github.com/peternoyes/dodo-sim"
-	"strconv"
-	"time"
 )
 
 func runLogic(s *dodosim.SimulatorSync) {
@@ -30,7 +31,13 @@ func runLogic(s *dodosim.SimulatorSync) {
 
 			fram = data
 
-			s.SwitchFram(fram)
+			firmwareBytes, err := getFirmware(version)
+			if err != nil {
+				setStatus(err.Error(), "bg-danger")
+				return
+			}
+
+			s.SwitchFram(firmwareBytes, fram)
 
 			gamelink := js.Global.Get("document").Get("location").Get("origin").String()
 			gamelink += "/?code="

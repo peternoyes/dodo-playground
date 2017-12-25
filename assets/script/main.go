@@ -6,23 +6,25 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
+
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/gopherjs/jquery"
 	"github.com/peternoyes/dodo-sim"
 	"github.com/russross/blackfriday"
-	"io/ioutil"
-	"net/http"
-	"strings"
 )
 
 var jQuery = jquery.NewJQuery
 
 var ctx *js.Object
 var fram []byte
-var firmware []byte
 var stop bool
 var speaker *WebSpeaker
 var language string
+var version string
+var firmware map[string][]byte
 
 func main() {
 	loadAPI()
@@ -35,6 +37,7 @@ func main() {
 	speaker.New()
 
 	language = "c"
+	version = "1.0.1"
 
 	c := js.Global.Get("gameCanvas")
 	ctx = c.Call("getContext", "2d")
@@ -42,7 +45,9 @@ func main() {
 	c.Set("height", 128)
 
 	fram, _ = getAsset("fram.bin")
-	firmware, _ = getAsset("firmware101.bin")
+	firmware = make(map[string][]byte)
+
+	firmwareBytes, _ := getFirmware(version)
 
 	wr := new(WebRenderer)
 	wr.New(ctx)
@@ -51,7 +56,7 @@ func main() {
 	fmt.Println("Initializing Speaker...")
 	s.Speaker = speaker
 
-	s.SimulateSyncInit(firmware, fram)
+	s.SimulateSyncInit(firmwareBytes, fram)
 
 	// Load Code
 	isEmptyProject := false
@@ -75,6 +80,7 @@ func main() {
 	}
 
 	languageLogic()
+	versionLogic()
 	loginLogic()
 	logoutLogic()
 	flashLogic()
@@ -107,6 +113,24 @@ func languageLogic() {
 	})
 
 	jQuery("#dropdownMenuLanguage").On(jquery.CLICK, "li a", click)
+}
+
+func refreshVersionDropdown() {
+	fmt.Println("Refreshing: ", version)
+	jQuery("#activeVersion").SetHtml(version)
+}
+
+func versionLogic() {
+	click := js.MakeFunc(func(this *js.Object, arguments []*js.Object) interface{} {
+		go func() {
+			version = jQuery(this).Text()
+			jQuery("#activeVersion").SetHtml(jQuery(this).Html())
+		}()
+
+		return nil
+	})
+
+	jQuery("#dropdownMenuVersion").On(jquery.CLICK, "li a", click)
 }
 
 func loginLogic() {
@@ -148,6 +172,20 @@ func getUrlParameter(param string) string {
 	return ""
 }
 
+func getFirmware(version string) ([]byte, error) {
+	if val, ok := firmware["version"]; ok {
+		return val, nil
+	}
+
+	firmwareBytes, err := getAsset("firmware_" + version + ".bin")
+	if err != nil {
+		return nil, err
+	}
+
+	firmware[version] = firmwareBytes
+	return firmwareBytes, nil
+}
+
 func compileCode() ([]byte, string, error) {
 	val := js.Global.Get("editor").Call("getValue")
 
@@ -160,6 +198,7 @@ func compileCode() ([]byte, string, error) {
 
 	req.Header.Set("Content-Type", "application/text")
 	req.Header.Set("X-Language", language)
+	req.Header.Set("X-Version", version)
 
 	client := &http.Client{}
 
