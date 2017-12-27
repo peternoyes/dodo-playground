@@ -10,6 +10,16 @@ import (
 	"github.com/peternoyes/dodo-sim"
 )
 
+func getUsedSpace(data []byte) int {
+	for i := 8191; i >= 0; i-- {
+		if data[i] != 0 {
+			return (i * 100) / 8192
+		}
+	}
+
+	return 0
+}
+
 func runLogic(s *dodosim.SimulatorSync) {
 	jQuery("#runButton").On(jquery.CLICK, func() {
 		go func() {
@@ -26,6 +36,8 @@ func runLogic(s *dodosim.SimulatorSync) {
 				setStatus(err.Error(), "bg-danger")
 				return
 			}
+
+			usedSpace := getUsedSpace(data)
 
 			setStatus("Loading Simulator...", "bg-success")
 
@@ -49,7 +61,7 @@ func runLogic(s *dodosim.SimulatorSync) {
 
 			runSimulator(s)
 
-			setStatus("Success! Simulator Running.", "bg-success")
+			setStatus("Success! Simulator Running.\nUsed Space: "+strconv.Itoa(usedSpace)+"%", "bg-success")
 		}()
 	})
 
