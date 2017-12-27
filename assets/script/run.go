@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -42,6 +43,18 @@ func runLogic(s *dodosim.SimulatorSync) {
 			setStatus("Loading Simulator...", "bg-success")
 
 			fram = data
+
+			if activeProject != "" {
+				item := localStorage.Call("getItem", activeProject)
+				if item != nil && item != js.Undefined {
+					userData := make([]uint8, 64)
+					err := json.Unmarshal([]byte("["+item.String()+"]"), &userData)
+
+					for i := 0; i < 64; i++ {
+						fram[i+4] = userData[i]
+					}
+				}
+			}
 
 			firmwareBytes, err := getFirmware(version)
 			if err != nil {

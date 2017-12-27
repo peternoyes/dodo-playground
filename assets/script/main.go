@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 
@@ -19,6 +20,7 @@ import (
 var jQuery = jquery.NewJQuery
 
 var ctx *js.Object
+var localStorage *js.Object
 var fram []byte
 var stop bool
 var speaker *WebSpeaker
@@ -44,6 +46,8 @@ func main() {
 	c.Set("width", 256)
 	c.Set("height", 128)
 
+	localStorage = js.Global.Get("localStorage")
+
 	fram, _ = getAsset("fram.bin")
 	firmware = make(map[string][]byte)
 
@@ -56,7 +60,7 @@ func main() {
 	fmt.Println("Initializing Speaker...")
 	s.Speaker = speaker
 
-	s.SimulateSyncInit(firmwareBytes, fram)
+	s.SimulateSyncInit(firmwareBytes, fram, framFlusher)
 
 	// Load Code
 	isEmptyProject := false
@@ -299,4 +303,13 @@ func loadAPI() {
 	api, _ := getAsset("api.md")
 	output := blackfriday.MarkdownCommon(api)
 	jQuery("#api").SetHtml(string(output))
+}
+
+func framFlusher(f *dodosim.Fram) {
+	if activeProject != "" {
+		// Save to persistant storage or cookie
+		data := f.Data[4:68]
+		log.Printf("Flushing: ", data)
+		localStorage.Call("setItem", activeProject, data)
+	}
 }
