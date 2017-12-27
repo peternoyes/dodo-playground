@@ -6,17 +6,18 @@
                 .export _init
                 .export _exit
 
-               .import __RAM_START__
-               .import __RAM_SIZE__
-               .import __STACKSIZE__ 
-               .import _main
-               .import _frame
-               .import zerobss
-               .import copydata
-               .import initlib
-               .import donelib                
+                .import __RAM_START__
+                .import __RAM_SIZE__
+                .import __STACKSIZE__ 
+                .import _main
+                .import _frame
+                .import zerobss
+                .import copydata
+                .import initlib
+                .import donelib           
 
-        
+                .segment "RESERVED"
+reserved:       .res 68                 ; 4 Reserved and 64 for User Space
 
                 .segment "STARTUP"
 

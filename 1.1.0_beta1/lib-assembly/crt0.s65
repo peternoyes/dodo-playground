@@ -10,6 +10,8 @@
                 .import __RAM_START__
                 .import __RAM_SIZE__
 
+                .segment "RESERVED"
+reserved:       .res 68                 
         
                 .segment "STARTUP"
 
