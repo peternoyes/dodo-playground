@@ -48,7 +48,7 @@ func runLogic(s *dodosim.SimulatorSync) {
 				item := localStorage.Call("getItem", activeProject)
 				if item != nil && item != js.Undefined {
 					userData := make([]uint8, 64)
-					err := json.Unmarshal([]byte("["+item.String()+"]"), &userData)
+					json.Unmarshal([]byte("["+item.String()+"]"), &userData)
 
 					for i := 0; i < 64; i++ {
 						fram[i+4] = userData[i]
