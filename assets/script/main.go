@@ -87,6 +87,7 @@ func main() {
 	versionLogic()
 	loginLogic()
 	logoutLogic()
+	downloadLogic()
 	flashLogic()
 	runLogic(s)
 
