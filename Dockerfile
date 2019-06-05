@@ -1,4 +1,4 @@
-FROM golang:1.9
+FROM golang:1.12
 
 RUN mkdir -p /go/src
 ADD . /go/src
